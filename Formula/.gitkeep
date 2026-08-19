@@ -1,0 +1,8 @@
+# Formula/byway.rb lands here on the first `just release-cli` in the Byway repo.
+# It is generated — the release renders it from a template with the version and
+# the sha256 of the archive it just published, so anything committed here by
+# hand is overwritten by the next release.
+#
+# This placeholder only exists so the directory is tracked before then; the
+# release creates the directory anyway, so it can be deleted once a real formula
+# is in place.
