@@ -61,20 +61,38 @@ archives here keeps the source private and the binaries public.
 Year-based: `2026.1`, `2026.2`, …, then `2027.1`. `byway version` reports the
 version you have installed.
 
-## Verifying a download
+## Installing the archive by hand
 
-Every published binary is signed with a Developer ID certificate and notarized
-by Apple, so Gatekeeper accepts it. To check a copy yourself:
+`brew install` is the supported path and needs nothing extra. If you'd rather
+take the `.zip` from the Releases page, macOS quarantines anything a browser
+downloads and will refuse to run it — *"Apple could not verify 'byway' is free of
+malware"*. Clear the attribute:
+
+```sh
+unzip byway-<version>-macos-universal.zip
+xattr -d com.apple.quarantine byway
+```
+
+That is not a way around a missing signature. Every published binary **is**
+signed with a Developer ID certificate and **is** notarized by Apple; the
+notarization ticket simply cannot be *stapled* to it, because a ticket attaches
+only to a bundle, `.dmg` or `.pkg` and `byway` is a bare executable. Homebrew
+fetches with `curl`, which never sets the quarantine attribute, which is why the
+recommended path is unaffected.
+
+## Verifying a copy
 
 ```sh
 codesign --verify --strict --verbose=2 "$(brew --prefix)/bin/byway"
-spctl --assess --type exec -vv "$(brew --prefix)/bin/byway"
+codesign -dvv "$(brew --prefix)/bin/byway" 2>&1 | grep -E 'Authority|TeamIdentifier'
 ```
 
-The notarization ticket is not stapled to the binary, because a ticket can only
-be attached to a bundle, `.dmg` or `.pkg` and `byway` is a bare executable.
-Gatekeeper checks it online instead. `spctl` therefore needs a network
-connection to give a verdict.
+You should see `Authority=Developer ID Application: Homegrown Software Ltd` and
+`TeamIdentifier=2G974K78BH`.
+
+Don't use `spctl --assess --type exec` here: it evaluates application bundles and
+answers *"rejected (the code is valid but does not seem to be an app)"* for any
+command-line tool, signed or not. It is not telling you anything is wrong.
 
 ## Licence
 
